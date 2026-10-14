@@ -20,3 +20,4 @@ push-now.cmd
 *.bak
 *.bak-*
 cordis.patch.yml.bak-*
+push-with-token.cmd
