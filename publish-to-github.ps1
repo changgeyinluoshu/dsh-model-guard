@@ -97,8 +97,17 @@ git config --local user.email $Email
 Ok "已配置本仓库 git 身份：$DisplayName <$Email>"
 
 # ---- 3. 提交（首次提交改写作者，之后正常新增）----
+# 注意：$ErrorActionPreference='Stop' 时，外部命令往 stderr 写东西会变成
+# NativeCommandError 并中断脚本（比如 origin 还不存在时 git remote get-url 的报错）。
+# 这类"探测型"调用一律用 try/catch 包住。
+function Invoke-Git([string[]]$Arguments) {
+  try { return (& git @Arguments 2>$null) } catch { return $null }
+}
+
 $hasChanges = (git status --porcelain | Measure-Object).Count -gt 0
-$commitCount = [int](git rev-list --count HEAD 2>$null)
+$commitCount = 0
+$countText = Invoke-Git @('rev-list', '--count', 'HEAD')
+if ($countText) { $commitCount = [int]$countText }
 if ($commitCount -le 1 -and -not $hasChanges) {
   git add -A
   git commit -q --amend --reset-author --no-edit
@@ -115,8 +124,8 @@ if ($commitCount -le 1 -and -not $hasChanges) {
 
 # ---- 4. remote ----
 $url = "https://github.com/$GitHubUser/$RepoName.git"
-$existing = git remote get-url origin 2>$null
-if ($LASTEXITCODE -eq 0 -and $existing) {
+$existing = Invoke-Git @('remote', 'get-url', 'origin')
+if ($existing) {
   if ($existing -ne $url) { git remote set-url origin $url; Ok "origin 已更新为 $url" }
   else { Ok "origin 已正确：$url" }
 } else {
