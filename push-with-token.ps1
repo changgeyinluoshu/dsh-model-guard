@@ -31,9 +31,14 @@ Write-Host '=== 用 Token 推送到 GitHub ===' -ForegroundColor White
 Write-Host ''
 
 if ([string]::IsNullOrEmpty($Token)) {
-  Write-Host '请粘贴你的 GitHub Personal Access Token' -ForegroundColor Yellow
-  Write-Host '（去 https://github.com/settings/tokens 生成 classic token，勾选 repo 权限）' -ForegroundColor DarkGray
-  $secure = Read-Host -Prompt 'Token' -AsSecureString
+  $tokenPage = 'https://github.com/settings/tokens/new?scopes=repo&description=dsh-model-guard'
+  Write-Host '第 1 步：浏览器里点最下面的 Generate token，复制那一串 ghp_ 开头的字符' -ForegroundColor Yellow
+  Write-Host '第 2 步：回到这个窗口，粘贴后回车（粘贴时屏幕上不会显示，这是正常的）' -ForegroundColor Yellow
+  Write-Host ''
+  Write-Host ("正在打开: " + $tokenPage) -ForegroundColor DarkGray
+  try { Start-Process $tokenPage } catch { Write-Host '  （浏览器没能自动打开，请手动访问上面的地址）' -ForegroundColor DarkGray }
+  Write-Host ''
+  $secure = Read-Host -Prompt '请粘贴 Token 后回车' -AsSecureString
   $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
   try { $Token = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr) }
   finally { [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
