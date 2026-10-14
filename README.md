@@ -370,6 +370,13 @@ DSH 不在默认位置时用环境变量 `DSH_APP_ROOT` 指定。
 ```
 
 推送前先在 <https://github.com/new> 建一个**空仓库**（不要勾选 README / .gitignore / license，全空最省事）。
+如果建的时候已经勾了 "Add a README file"，远程 main 上会多出一个自动生成的 README 提交，
+与本地历史互不相关、普通推送会被拒绝，这时加 `-Force` 覆盖它即可（那只是一行标题，覆盖无损失）：
+
+```powershell
+.\publish-to-github.cmd -GitHubUser 你的用户名 -Push -Force
+```
+
 脚本做的事：
 
 | 步骤 | 内容 |
