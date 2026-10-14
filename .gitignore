@@ -15,9 +15,10 @@ Thumbs.db
 
 # 本地一次性工具（内含本机用户名/仓库地址，不随包发布）
 push-now.cmd
+push-with-token.cmd
+push-with-token.ps1
 
 # 备份
 *.bak
 *.bak-*
 cordis.patch.yml.bak-*
-push-with-token.cmd
