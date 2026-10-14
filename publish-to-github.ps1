@@ -30,6 +30,11 @@
   想推到 Gitee 等其它托管时用它覆盖，例如
   -RemoteUrl https://gitee.com/你的用户名/dsh-model-guard.git
 
+.PARAMETER Force
+  用 --force 推送。用于远程仓库在创建时勾选了 "Add a README file" 的情况：
+  那会在远程 main 上留下一个自动生成的 README 提交，与本地历史互不相关，
+  普通推送会被拒绝。远程那个文件只是一行标题，覆盖掉没有任何损失。
+
 .PARAMETER Push
   加了这个开关才会真正推送。
 
@@ -48,7 +53,8 @@ param(
   [string]$DisplayName = '',
   [string]$Email = '',
   [string]$RemoteUrl = '',
-  [switch]$Push
+  [switch]$Push,
+  [switch]$Force
 )
 
 $ErrorActionPreference = 'Stop'
@@ -143,11 +149,17 @@ if ($existing) {
 # ---- 5. 推送 ----
 if ($Push) {
   Write-Host ''
-  Info '开始推送（若弹出登录窗口，请用浏览器完成 GitHub 登录）…'
-  git push -u origin main
+  if ($Force) { Info '以 --force 推送（覆盖远程那个自动生成的 README 提交）…' }
+  else { Info '开始推送（若弹出登录窗口，请用浏览器完成 GitHub 登录）…' }
+  $pushArgs = @('push', '-u', 'origin', 'main')
+  if ($Force) { $pushArgs += '--force' }
+  & git @pushArgs
   if ($LASTEXITCODE -ne 0) {
-    Warn2 '推送失败。常见原因：GitHub 上还没有这个仓库，或登录未完成。'
-    Warn2 "请确认已在 https://github.com/new 建好空仓库 $RepoName（不要初始化 README），然后重跑本脚本加 -Push。"
+    Warn2 '推送失败。按下面顺序排查：'
+    Warn2 '  1. 登录没完成 —— 重跑一次，在弹窗里完成 GitHub 登录；'
+    Warn2 '  2. 远程仓库还不存在 —— 去 https://github.com/new 建一个同名空仓库；'
+    Warn2 "  3. 报 rejected / unrelated histories —— 说明建仓库时勾了 Add a README file，"
+    Warn2 '     加 -Force 重跑即可（远程那个 README 只是一行标题，覆盖无损失）。'
     exit 1
   }
   Ok "推送成功：https://github.com/$GitHubUser/$RepoName"
