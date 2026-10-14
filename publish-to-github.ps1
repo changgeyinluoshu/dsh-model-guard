@@ -25,6 +25,11 @@
 .PARAMETER Email
   提交邮箱，默认 <GitHubUser>@users.noreply.github.com（不暴露真实邮箱）。
 
+.PARAMETER RemoteUrl
+  自定义远程地址。默认 https://github.com/<GitHubUser>/<RepoName>.git；
+  想推到 Gitee 等其它托管时用它覆盖，例如
+  -RemoteUrl https://gitee.com/你的用户名/dsh-model-guard.git
+
 .PARAMETER Push
   加了这个开关才会真正推送。
 
@@ -42,6 +47,7 @@ param(
   [string]$RepoName = 'dsh-model-guard',
   [string]$DisplayName = '',
   [string]$Email = '',
+  [string]$RemoteUrl = '',
   [switch]$Push
 )
 
@@ -123,7 +129,8 @@ if ($commitCount -le 1 -and -not $hasChanges) {
 }
 
 # ---- 4. remote ----
-$url = "https://github.com/$GitHubUser/$RepoName.git"
+if ([string]::IsNullOrEmpty($RemoteUrl)) { $RemoteUrl = "https://github.com/$GitHubUser/$RepoName.git" }
+$url = $RemoteUrl
 $existing = Invoke-Git @('remote', 'get-url', 'origin')
 if ($existing) {
   if ($existing -ne $url) { git remote set-url origin $url; Ok "origin 已更新为 $url" }
