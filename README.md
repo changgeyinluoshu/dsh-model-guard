@@ -374,7 +374,7 @@ DSH 不在默认位置时用环境变量 `DSH_APP_ROOT` 指定。
 
 | 步骤 | 内容 |
 | --- | --- |
-| 占位符 | 替换 `package.json` 的 `repository` / `homepage` / `bugs` / `author` 里的 `changgeyinluoshu`、`<你的名字>` |
+| 占位符 | 替换 `package.json` 的 `repository` / `homepage` / `bugs` / `author` 字段里的账号与署名占位符 |
 | 身份 | 只配置**本仓库**的 `user.name` / `user.email`，不动全局配置 |
 | 作者 | 首次提交用 `--reset-author` 改写为你的身份 |
 | 邮箱 | 默认 `<用户名>@users.noreply.github.com`，不暴露真实邮箱 |
