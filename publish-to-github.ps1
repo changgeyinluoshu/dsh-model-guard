@@ -153,7 +153,9 @@ if ($Push) {
   else { Info '开始推送（若弹出登录窗口，请用浏览器完成 GitHub 登录）…' }
   $pushArgs = @('push', '-u', 'origin', 'main')
   if ($Force) { $pushArgs += '--force' }
-  & git @pushArgs
+  # 必须捕获 stderr：git push 会把进度（"To https://..."、"Writing objects..."）写到 stderr，
+  # 而本脚本开着 $ErrorActionPreference='Stop'，不捕获就会把成功的推送显示成红色错误并中断脚本。
+  & git @pushArgs 2>&1 | ForEach-Object { Write-Host "    $_" }
   if ($LASTEXITCODE -ne 0) {
     Warn2 '推送失败。按下面顺序排查：'
     Warn2 '  1. 登录没完成 —— 重跑一次，在弹窗里完成 GitHub 登录；'
