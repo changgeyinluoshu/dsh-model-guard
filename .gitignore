@@ -1,0 +1,19 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 运行时产物
+*.log
+work/
+.verify/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 备份
+*.bak
+*.bak-*
+cordis.patch.yml.bak-*

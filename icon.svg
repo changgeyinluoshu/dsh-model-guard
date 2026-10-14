@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="dsh-model-guard">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b7cff"/>
+      <stop offset="1" stop-color="#3355e0"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#g)"/>
+  <!-- 盾牌：守卫 -->
+  <path d="M64 22 L98 36 V64 C98 84 84 99 64 106 C44 99 30 84 30 64 V36 Z"
+        fill="none" stroke="#ffffff" stroke-width="6" stroke-linejoin="round" opacity="0.95"/>
+  <!-- 禁止符号：被拦下的模型调用 -->
+  <circle cx="64" cy="63" r="18" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.95"/>
+  <line x1="51.5" y1="75.5" x2="76.5" y2="50.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <!-- 两侧的模型节点：被守卫挡在外面的调用 -->
+  <circle cx="22" cy="64" r="5" fill="#ffffff" opacity="0.55"/>
+  <circle cx="106" cy="64" r="5" fill="#ffffff" opacity="0.55"/>
+</svg>

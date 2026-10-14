@@ -1,0 +1,60 @@
+# dsh-model-guard bundle layer.
+#
+# 这一行把守卫插件插入 profile 名册。安装方式（任选其一）：
+#   dsh plugin --profile desktop add dsh-model-guard
+#   dsh plugin --profile desktop add link:<本仓库绝对路径>
+# 之后在 profile 的 cordis.patch.yml 里按下面的形状写规则（后面的层覆盖前面的层）。
+- insert:
+    - id: model-guard
+      name: 'dsh-model-guard'
+      config:
+        # 总开关：先设为 false 可以「装好但不生效」。
+        enabled: true
+        # 命中后的动作：block（拦截并报错）/ redirect（改道到 fallback）/ warn（只告警放行）
+        mode: block
+        # 默认作用域：all = 拦截一切调用；auto = 只拦「自动调用」
+        # （即带 purpose 的后台调用：上下文压缩 compaction、会话标题生成 session-title）
+        scope: all
+        # ---- 简洁写法：按 API 渠道 / 模型 / 用途拉黑 ----
+        # 支持 * 通配；留空表示不按该维度拦截。
+        blockedProviders: []
+        blockedModels: []
+        blockedPurposes: []
+        # ---- 白名单：优先于黑名单，用于「大面积拉黑后单独放行」----
+        allowedProviders: []
+        allowedModels: []
+        # ---- 改道目标（mode: redirect 时使用）----
+        fallback:
+          provider: ''
+          model: ''
+        # ---- 精确规则：可与上面的简洁写法共存 ----
+        # 单条规则内多个条件是「与」的关系；同一个条件的多个值之间是「或」。
+        # 示例（把注释打开即可生效）：
+        # rules:
+        #   # 1) 只禁止「自动调用」使用 NVIDIA 渠道，用户手动选择时仍然可用
+        #   - provider: nvida
+        #     scope: auto
+        #     action: block
+        #     note: 不让后台压缩/标题消耗 NVIDIA 额度
+        #   # 2) 彻底禁止某个模型（任何渠道下）
+        #   - model: 'deepseek-ai/deepseek-v4.1-flash'
+        #     action: block
+        #   # 3) 自动调用一律改用便宜的小模型
+        #   - scope: auto
+        #     provider: '*'
+        #     action: redirect
+        #     fallback:
+        #       provider: nvida
+        #       model: deepseek-ai/deepseek-v4.1-flash
+        #   # 4) 只拦「用户主动发起」的调用（allowPurposeless 表示匹配没有 purpose 的调用）
+        #   - model: 'some-expensive-*'
+        #     allowPurposeless: true
+        #     action: block
+        rules: []
+        autoPurposes:
+          - compaction
+          - session-title
+        # 输出拦截日志（宿主进程 stdout，前缀 [model-guard]）。
+        log: true
+        # 自定义提示语；留空使用内置中文提示。
+        blockMessage: ''

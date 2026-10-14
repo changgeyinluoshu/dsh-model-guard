@@ -1,0 +1,73 @@
+{
+  "name": "dsh-model-guard",
+  "version": "1.0.0",
+  "description": "禁止 DSH 自动调用指定的 API（provider）或模型：在 llm/stream 瀑布上全量拦截、改道或告警，覆盖主对话、子 agent、上下文压缩与会话标题生成。",
+  "type": "module",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./matcher": "./lib/matcher.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node scripts/run-tests.mjs",
+    "verify:load": "node scripts/verify-load.mjs"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "model-guard",
+    "model-allowlist",
+    "policy",
+    "llm",
+    "security",
+    "settings"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "*"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/schemastery": {
+      "optional": true
+    }
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/<你的账号>/dsh-model-guard.git"
+  },
+  "homepage": "https://github.com/<你的账号>/dsh-model-guard#readme",
+  "bugs": {
+    "url": "https://github.com/<你的账号>/dsh-model-guard/issues"
+  },
+  "author": "<你的名字>",
+  "publishConfig": {
+    "access": "public"
+  }
+}
