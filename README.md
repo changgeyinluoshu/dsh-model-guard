@@ -360,7 +360,31 @@ DSH 不在默认位置时用环境变量 `DSH_APP_ROOT` 指定。
 | `install.ps1` / `install.cmd` | 安装：目录联接 + managed block，带备份与 YAML 校验 |
 | `uninstall.ps1` / `uninstall.cmd` | 卸载：精确移除上面两项，其余配置不动 |
 
-## 11. 上架到插件市场
+## 11. 发布到你的 GitHub
+
+本目录已经初始化成 git 仓库并完成首次提交。一条命令替换占位符、配置仓库级 git 身份与 remote：
+
+```powershell
+.\publish-to-github.cmd -GitHubUser 你的用户名          # 只做本地准备
+.\publish-to-github.cmd -GitHubUser 你的用户名 -Push     # 顺带推送
+```
+
+推送前先在 <https://github.com/new> 建一个**空仓库**（不要勾选 README / .gitignore / license，全空最省事）。
+脚本做的事：
+
+| 步骤 | 内容 |
+| --- | --- |
+| 占位符 | 替换 `package.json` 的 `repository` / `homepage` / `bugs` / `author` 里的 `<你的账号>`、`<你的名字>` |
+| 身份 | 只配置**本仓库**的 `user.name` / `user.email`，不动全局配置 |
+| 作者 | 首次提交用 `--reset-author` 改写为你的身份 |
+| 邮箱 | 默认 `<用户名>@users.noreply.github.com`，不暴露真实邮箱 |
+| remote | `origin` 指向 `https://github.com/<用户名>/<仓库名>.git`，已存在则更新 |
+
+这台机器已有系统级 `credential.helper=manager`，推送时凭据管理器会弹窗让你登录 GitHub，不需要手工准备 token。
+
+---
+
+## 12. 上架到插件市场
 
 ### 先说清楚：市场不会自动收录本地插件
 
