@@ -13,6 +13,9 @@ work/
 .DS_Store
 Thumbs.db
 
+# 本地一次性工具（内含本机用户名/仓库地址，不随包发布）
+push-now.cmd
+
 # 备份
 *.bak
 *.bak-*
