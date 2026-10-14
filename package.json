@@ -60,13 +60,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/<你的账号>/dsh-model-guard.git"
+    "url": "git+https://github.com/changgeyinluoshu/dsh-model-guard.git"
   },
-  "homepage": "https://github.com/<你的账号>/dsh-model-guard#readme",
+  "homepage": "https://github.com/changgeyinluoshu/dsh-model-guard#readme",
   "bugs": {
-    "url": "https://github.com/<你的账号>/dsh-model-guard/issues"
+    "url": "https://github.com/changgeyinluoshu/dsh-model-guard/issues"
   },
-  "author": "<你的名字>",
+  "author": "changgeyinluoshu",
   "publishConfig": {
     "access": "public"
   }
