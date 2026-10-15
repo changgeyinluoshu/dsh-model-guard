@@ -1,6 +1,6 @@
 {
   "name": "dsh-model-guard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "禁止 DSH 自动调用指定的 API（provider）或模型：在 llm/stream 瀑布上全量拦截、改道或告警，覆盖主对话、子 agent、上下文压缩与会话标题生成。",
   "type": "module",
   "main": "./lib/index.js",

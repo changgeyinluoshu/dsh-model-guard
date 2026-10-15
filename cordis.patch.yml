@@ -51,6 +51,48 @@
         #     allowPurposeless: true
         #     action: block
         rules: []
+        # ---- 名单策略 ----
+        # blocklist（默认）：只拦名单内的；allowlist：只放行名单内的，其余全拦。
+        # 白名单模式下 blockedProviders/blockedModels 语义不变（仍可用来排除），
+        # 真正决定放行的是 allowedProviders / allowedModels。
+        policy: blocklist
+        # ---- 按 Agent 预设 / 会话独立配置 ----
+        # 命中的第一条作用域会整体接管该次调用的名单（未命中则用上面的全局配置）。
+        # preset 取自会话头的 agentPreset；session 匹配 sessionId（都支持 * 通配）。
+        scopes: []
+        # 示例：
+        # scopes:
+        #   - match: { preset: ptc }
+        #     policy: allowlist
+        #     allowedModels: ['deepseek-ai/*']
+        #   - match: { session: 'auto-*' }        # 自动化任务会话整段收紧
+        #     blockedModels: ['*']
+        #     mode: warn
+        # ---- 权重软调度（与硬黑名单共存）----
+        # 命中 match 后按 weight 随机抽一条路线，权重是相对值。
+        softRules: []
+        # 示例：
+        # softRules:
+        #   - match: { model: 'expensive-*' }
+        #     routes:
+        #       - { action: allow, weight: 70 }
+        #       - { action: redirect, provider: nvida, model: 'deepseek-ai/deepseek-v4.1-flash', weight: 20 }
+        #       - { action: block, weight: 10 }
+        # ---- API 熔断：服务商连续报错时临时拦截，冷却后自动恢复 ----
+        breaker:
+          enabled: false
+          failureThreshold: 3        # 连续失败多少次后开路
+          cooldownMs: 60000          # 开路后暂停多久（到点自动恢复，无需重启）
+          # 计入失败的失败码；成功一次即清零计数。
+          codes: [SERVER, TRANSPORT, TIMEOUT, RATE_LIMIT]
+        # ---- 拦截审计 ----
+        audit:
+          enabled: true
+          toSession: true            # 把拦截记录写进会话日志（在 DSH 会话里可见）
+          file: ''                   # 非空则同时追加 JSONL 到该路径
+          maxEntries: 200            # 内存环形缓冲条数
+        # 启动时检测是否有职责重叠的守卫类插件同时挂在 llm/stream 上。
+        conflictCheck: true
         autoPurposes:
           - compaction
           - session-title

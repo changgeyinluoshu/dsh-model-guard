@@ -16,6 +16,7 @@ const files = [
   join(here, '..', 'test', 'guard.test.js'),
   join(here, '..', 'test', 'integration.test.js'),
   join(here, '..', 'test', 'client.test.js'),
+  join(here, '..', 'test', 'features.test.js'),
 ]
 
 let failed = 0

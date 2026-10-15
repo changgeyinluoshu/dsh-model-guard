@@ -306,6 +306,40 @@ test('配置里的通配规则（不在模型目录中）也会显示并可取�
   assert.deepEqual(byPath.blockedModels, ['legacy-*'], '未被取消的规则保留')
 })
 
+test('策略切换：白名单模式改变清单标题并写入 policy', async () => {
+  const mod = captured.factory((n) => (n === 'react' ? makeReact() : null))
+  const host = makeCtx({ groups: GROUPS })
+  mod.apply(host.ctx)
+  await new Promise((r) => setTimeout(r, 10))
+  const def = host.registered[0].definition
+
+  let tree = host.registered[0].Component(def.inject())
+  assert.ok(textOf(tree).includes('禁止清单'), '默认是黑名单模式')
+  assert.ok(textOf(tree).includes('黑名单模式'))
+
+  findAll(tree, (n) => n.props && n.props['data-mg-option'] === 'allowlist')[0].props.onClick()
+  tree = host.registered[0].Component(def.inject())
+  assert.ok(textOf(tree).includes('允许清单'), '切到白名单后标题跟着变')
+  assert.equal(findAll(tree, (n) => n.props && n.props['data-mg-policy'])[0].props['data-mg-policy'], 'allowlist')
+
+  findAll(tree, (n) => n.props && n.props['data-mg-action'] === 'save')[0].props.onClick()
+  await new Promise((r) => setTimeout(r, 5))
+  const byPath = {}
+  for (const op of host.scope.writes[0]) byPath[op.path[0]] = op.value
+  assert.equal(byPath.policy, 'allowlist', '保存时写入 policy')
+})
+
+test('策略切换：已有配置里的 allowlist 会回填到界面', async () => {
+  const scope = makeScope({ enabled: true, policy: 'allowlist', mode: 'block', scope: 'all', blockedProviders: [], blockedModels: ['a/*'] })
+  const mod = captured.factory((n) => (n === 'react' ? makeReact() : null))
+  const host = makeCtx({ groups: GROUPS, scope: scope })
+  mod.apply(host.ctx)
+  await new Promise((r) => setTimeout(r, 10))
+  const tree = host.registered[0].Component(host.registered[0].definition.inject())
+  assert.ok(textOf(tree).includes('允许清单'), '白名单模式应还原')
+  assert.equal(findAll(tree, (n) => n.props && n.props['data-mg-policy'])[0].props['data-mg-policy'], 'allowlist')
+})
+
 test('模型目录拉取失败时给出可读提示而不是崩溃', async () => {
   const mod = captured.factory((n) => (n === 'react' ? makeReact() : null))
   const host = makeCtx({ groups: GROUPS, catalogError: '远程通道未就绪' })

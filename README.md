@@ -194,6 +194,83 @@ New-Item -ItemType Junction -Path "$profile\node_modules\dsh-model-guard" -Targe
 | `log` | `true` | 是否输出 `[model-guard]` 日志 |
 | `blockMessage` | 内置中文 | 自定义拦截提示语 |
 
+### 进阶字段（v1.1 新增）
+
+| 字段 | 默认 | 说明 |
+| --- | --- | --- |
+| `policy` | `blocklist` | 名单策略。`allowlist` = **只放行名单内的，其余全拦** |
+| `scopes` | `[]` | **按 Agent 预设 / 会话**独立起的规则，命中的第一条整体接管该次调用 |
+| `softRules` | `[]` | **权重软调度**：命中后按 `weight` 抽一条路线（allow / redirect / block） |
+| `breaker` | 关闭 | **API 熔断**：服务商连续报错后临时拦截，冷却到点自动恢复 |
+| `audit` | 开启 | **拦截审计**：内存环形缓冲 + 会话日志 + 可选 JSONL 文件 |
+| `conflictCheck` | `true` | 检测是否有职责重叠的守卫类插件同时挂在 `llm/stream` 上 |
+
+**白名单模式**——只允许少数模型可用：
+
+```yaml
+policy: allowlist
+allowedModels:
+  - 'deepseek-ai/deepseek-v4.1-flash'
+  - 'deepseek-ai/deepseek-v4.1'
+```
+
+**按 Agent 预设 / 会话分流**——命中的第一条作用域整体接管，未命中才用全局配置：
+
+```yaml
+scopes:
+  - match: { preset: ptc }              # 该预设下一律白名单
+    policy: allowlist
+    allowedModels: ['deepseek-ai/*']
+  - match: { session: 'auto-*' }        # 自动化任务会话整段收紧
+    blockedModels: ['*']
+    mode: warn
+```
+
+预设名取自会话头的 `agentPreset`，会话匹配 `sessionId`，两者都支持 `*` 通配。
+
+**权重软调度**——不是硬拦，而是按比例分流：
+
+```yaml
+softRules:
+  - match: { model: 'expensive-*' }
+    routes:
+      - { action: allow, weight: 70 }
+      - { action: redirect, provider: nvida, model: 'cheap-model', weight: 20 }
+      - { action: block, weight: 10 }
+```
+
+**API 熔断**——服务商连续报错时自动止损：
+
+```yaml
+breaker:
+  enabled: true
+  failureThreshold: 3       # 连续 3 次失败后开路
+  cooldownMs: 60000         # 暂停 60 秒，到点自动恢复（无需重启）
+  codes: [SERVER, TRANSPORT, TIMEOUT, RATE_LIMIT]
+```
+
+熔断期间该 provider 的调用直接以 `PROVIDER_CIRCUIT_OPEN` 失败，其它 provider 不受影响；
+成功一次即清零计数。判定基于时间戳，因此**不需要任何定时器**。
+
+**拦截审计**——排查自动化任务时看这里：
+
+```yaml
+audit:
+  enabled: true
+  toSession: true           # 写进会话日志，在 DSH 会话里直接可见
+  file: ''                  # 可选：同时追加 JSONL
+  maxEntries: 200
+```
+
+每条记录包含 `action / provider / model / purpose / preset / rule / 时间`，
+写入会话日志的事件类型是 `model-guard/blocked`。
+
+**配置热重载**——改完即生效，不用重启 DSH：
+
+配置以「惰性取值器」形式保留，每次模型调用时实时解包，所以设置界面点保存、
+或直接改 `cordis.patch.yml`，**下一次调用立刻按新规则走**。
+只有新增/删除插件本身才需要重启。
+
 ### 匹配语法
 
 - `*` 匹配任意字符，`?` 匹配单个字符，**大小写不敏感**；
